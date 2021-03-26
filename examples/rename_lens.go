@@ -6,22 +6,20 @@ import (
 
 // LensVM module import functions
 
-//export lensvm_exec_hoist
-func lensvm_exec_hoist(contextID sdk.ContextID, argBuffer *byte, argSize int, dataBuffer *byte, dataSize int) sdk.Status
+//go:wasm-module hoist
+//export lensvm_exec
+func lensvm_exec_hoist(contextID sdk.ContextID, forward bool, argBuffer *byte, argSize int, dataBuffer *byte, dataSize int) sdk.Status
 
 // LensVM module export functions
 
 // export lensvm_exec_rename
-func lensvm_exec_rename(contextID sdk.ContextID, argBuffer *byte, argSize int, dataBuffer *byte, dataSize int) sdk.Status {
-	ctx, err := sdk.GetContext(contextID)
-	if err != nil {
-		return sdk.ErrToStatus(err)
-	}
-	return ctx.Exec("rename", argBuffer, argSize, dataBuffer, dataSize)
-}
-
-func rename(ctx *RenameContext, data sdk.Data, source, destination string) (sdk.Data, error) {
-
+func lensvm_exec_rename(contextID sdk.ContextID, forward bool, argBuffer *byte, argSize int, dataBuffer *byte, dataSize int) sdk.Status {
+	// ctx, err := sdk.GetContext(contextID)
+	// if err != nil {
+	// 	return sdk.ErrToStatus(err)
+	// }
+	// return ctx.Exec("rename", argBuffer, argSize, dataBuffer, dataSize)
+	return sdk.Exec(contextID, forward, argBuffer, argSize, dataBuffer, dataSize)
 }
 
 type RenameContext struct {
@@ -39,16 +37,22 @@ func (ctx *RenameContext) Imports() []sdk.Import {
 	}
 }
 
-func (ctx *RenameContext) Lens(args sdk.Data, data sdk.Data) (sdk.Data, error) {
-	source := args.GetString("source")
-	destination := args.GetString("destination")
+func (ctx *RenameContext) Run(forward bool, args sdk.Data, data sdk.Data) (sdk.Data, error) {
+	var from, to string
+	if forward {
+		from = args.GetString("source")
+		to = args.GetString("destination")
+	} else {
+		from = args.GetString("destination")
+		to = args.GetString("source")
+	}
 
 	hoist, err := ctx.GetImport("hoist")
 	if err != nil {
 		return nil, err
 	}
-	res := sdk.DataFrom(map[string]string{
-		destination: data.GetString(source),
+	res := sdk.DataFrom(map[string]interface{}{
+		to: data.GetString(from),
 	})
 
 	return hoist.Exec(nil, res)
