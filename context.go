@@ -23,6 +23,10 @@ type ModuleContext interface {
 	// dynamically link it into the module.
 	Imports() []Import
 
+	// // Export returns a list of functions this module
+	// // implments
+	// Exports() []Export
+
 	// Get the function handler for a named import.
 	// Any import accessed through this function must be defined
 	// in the Imports() method.
@@ -35,4 +39,28 @@ type ModuleContext interface {
 
 type DefaultModuleContext struct {
 	ModuleContext
+	importModules map[string]ExecFn
+}
+
+// Name returns the name of the lens module
+func (ctx *DefaultModuleContext) Name() string {
+	return ""
+}
+
+// Imports returns a list of modules to import.
+func (ctx *DefaultModuleContext) Imports() []Import {
+	panic("not implemented") // TODO: Implement
+}
+
+// Get the function handler for a named import.
+// Any import accessed through this function must be defined
+// in the Imports() method.
+func (ctx *DefaultModuleContext) GetImport(_ string) (ModuleContext, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+// Run is responsible for parsing arguments and executing
+// the actual lens transformation function.
+func (ctx *DefaultModuleContext) Run(forward bool, args Data, data Data) (Data, error) {
+	panic("not implemented") // TODO: Implement
 }

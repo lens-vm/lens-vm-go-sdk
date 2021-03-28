@@ -1,10 +1,23 @@
 package sdk
 
-type Status int
+type Status int32
 
-type ContextID int
+const (
+	StatusOK Status = Status(iota)
+	StatusErrInvalidContext
+)
 
-type ExecFn func(ContextID, *byte, int, *byte, int) Status
+type ContextID int32
+
+type Import struct {
+	name   string
+	execFn ExecFn
+}
+
+type Export struct {
+	name   string
+	execFn ExecFn
+}
 
 func ErrToStatus(err error) Status {
 	return Status(0) //todo

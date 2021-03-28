@@ -33,7 +33,7 @@ func (ctx *RenameContext) Name() string {
 // Imports defines what other lenses we need to import
 func (ctx *RenameContext) Imports() []sdk.Import {
 	return []sdk.Import{
-		sdk.NewImport("hoist", lensvm_exec_hoist),
+		sdk.NewImport("hoist", (sdk.ExexFn)(lensvm_exec_hoist),
 	}
 }
 
@@ -55,5 +55,5 @@ func (ctx *RenameContext) Run(forward bool, args sdk.Data, data sdk.Data) (sdk.D
 		to: data.GetString(from),
 	})
 
-	return hoist.Exec(nil, res)
+	return hoist.Run(forward, nil, res)
 }
