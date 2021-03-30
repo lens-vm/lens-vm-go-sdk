@@ -1,24 +1,23 @@
 package sdk
 
-type Status int32
-
-const (
-	StatusOK Status = Status(iota)
-	StatusErrInvalidContext
-)
-
 type ContextID int32
 
 type Import struct {
 	name   string
-	execFn ExecFn
+	ExecFn ExecFn
 }
 
-type Export struct {
-	name   string
-	execFn ExecFn
+func NewImport(name string, fn ...ExecFn) Import {
+	i := Import{
+		name: name,
+	}
+	if len(fn) > 0 {
+		i.ExecFn = fn[0]
+	}
+	return i
 }
 
-func ErrToStatus(err error) Status {
-	return Status(0) //todo
-}
+// type Export struct {
+// 	name   string
+// 	execFn ExecFn
+// }

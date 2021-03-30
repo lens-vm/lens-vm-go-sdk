@@ -1,18 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
-	json "github.com/valyala/fastjson"
+	// json "github.com/valyala/fastjson"
+	"github.com/lens-vm/jsonmerge"
 )
 
-//go:wasm-module hoist
-//export lensvm_exec
+//export lensvm_exec_hoist
 // func hoist(x int) int
 
-// //go:wasm-module rename
-// //export lensvm_exec
+// //export lensvm_exec_rename
 // func rename() int
+
+type t json.RawMessage
 
 //export testFn
 func testFn() int {
@@ -48,19 +50,23 @@ func main() {
 
 	// fmt.Println(data)
 
-	var p json.Parser
-	v, err := p.Parse(`{
+	doc := []byte(`{
 			"str": "bar",
 			"int": 123,
 			"float": 1.23,
 			"bool": true,
 			"arr": [1, "foo", {}]
 	}`)
+	patch := []byte(`{
+		"str": "foo",
+		"int": null,
+		"bool": false
+	}`)
+
+	out, err := jsonmerge.MergePatch(doc, patch)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(v.GetStringBytes("str"))
-
-	fmt.Println(v.MarshalTo(nil))
+	fmt.Println(string(out))
 }
