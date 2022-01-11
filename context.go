@@ -1,6 +1,10 @@
 package sdk
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/lens-vm/lens-vm-go-sdk/types"
+)
 
 // type RootContext struct{}
 
@@ -62,6 +66,10 @@ type ModuleContext interface {
 	// Run is responsible for parsing arguments and executing
 	// the actual lens transformation function.
 	Run(forward bool, args Data, data Data) (Patch, error)
+
+	// exec is the internal exectuion function that handles
+	// argument memory load and return value save
+	// exec(forward bool, argBuffer *byte, argSize int32, dataBuffer *byte, dataSize int32) types.Status
 }
 
 type ImportedModuleContext interface {
@@ -69,12 +77,10 @@ type ImportedModuleContext interface {
 }
 
 type DefaultModuleContext struct {
-	importModules map[string]ExecFn
+	// importModules map[string]ExecFn
 }
 
-func (ctx *DefaultModuleContext) Init() {
-	fmt.Println(ctx.Name())
-}
+func (ctx *DefaultModuleContext) Init() {}
 
 // Name returns the name of the lens module
 func (ctx *DefaultModuleContext) Name() string {
@@ -98,11 +104,15 @@ func (ctx *DefaultModuleContext) Imports() []string {
 // Any import accessed through this function must be defined
 // in the Imports() method.
 func (ctx *DefaultModuleContext) GetImport(name string) (ImportedModuleContext, error) {
-	panic("not implemented") // TODO: Implement
+	return nil, nil
 }
 
 // Run is responsible for parsing arguments and executing
 // the actual lens transformation function.
-func (ctx *DefaultModuleContext) Run(forward bool, args Data, data Data) (Data, error) {
-	panic("not implemented") // TODO: Implement
+func (ctx *DefaultModuleContext) Run(forward bool, args Data, data Data) (Patch, error) {
+	return nil, types.ErrNotFound
 }
+
+// // exec is the internal exectuion function that handles
+// // argument memory load and return value save
+// func (ctx *DefaultModuleContext) exec(forward bool, argBuffer *byte, argSize int32, dataBuffer *byte, dataSize int32) types.Status

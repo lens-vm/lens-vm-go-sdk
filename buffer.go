@@ -61,3 +61,9 @@ func getBuffer(bufType types.BufferType, start, maxSize int32) ([]byte, types.St
 		return nil, st
 	}
 }
+
+//export lensvm_memory_allocate
+func lensVMMemoryAllocate(size uint) *byte {
+	buf := make([]byte, size)
+	return &buf[0]
+}

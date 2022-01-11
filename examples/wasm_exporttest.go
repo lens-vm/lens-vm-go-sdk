@@ -1,11 +1,14 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
+	"reflect"
 
-	// json "github.com/valyala/fastjson"
 	"github.com/lens-vm/jsonmerge"
+	json "github.com/valyala/fastjson"
+
+	"github.com/benbjohnson/immutable"
 )
 
 //export lensvm_exec_hoist
@@ -14,7 +17,9 @@ import (
 // //export lensvm_exec_rename
 // func rename() int
 
-type t json.RawMessage
+type t *json.Value
+
+type x map[reflect.Type]int
 
 //export testFn
 func testFn() int {
@@ -69,4 +74,33 @@ func main() {
 	}
 
 	fmt.Println(string(out))
+
+	y := map[reflect.Type]int{
+		reflect.TypeOf(out): 1,
+	}
+	for k, v := range y {
+		fmt.Println(k)
+		fmt.Println(v)
+	}
+
+	m1 := immutable.NewMap(nil)
+	m1 = m1.Set("jane", 100)
+
+	m2 := immutable.NewMap(nil)
+	m2 = m2.Set("bob", 200)
+
+	m1 = m1.Set("charles", m2)
+
+	fmt.Println(m1.Len()) // 2
+
+	v, ok := m1.Get("charles")
+	if vv, ok2 := v.(*immutable.Map); ok && ok2 {
+		fmt.Println(vv.Get("bob"))
+	}
+	// fmt.Println(v, ok) // 300 true
+
+	// fmt.Println(map[string]interface{}{
+	// 	"bob": 1,
+	// })
+
 }

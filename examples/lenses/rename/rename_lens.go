@@ -1,7 +1,8 @@
-package lenses
+package rename
 
 import (
 	sdk "github.com/lens-vm/lens-vm-go-sdk"
+	"github.com/lens-vm/lens-vm-go-sdk/types"
 )
 
 // LensVM module import functions
@@ -21,6 +22,24 @@ import (
 // 	return sdk.Exec(contextID, forward, argBuffer, argSize, dataBuffer, dataSize)
 // }
 
+//export lensvm_exec_hoist
+func _lensvm_exec_hoist(forward bool, argBuffer *byte, argSize int32, dataBuffer *byte, dataSize int32) types.Status
+
+func Wrapped_lensvm_exec_hoist(forward bool, argBuffer *byte, argSize int32, dataBuffer *byte, dataSize int32) types.Status {
+	return _lensvm_exec_hoist(forward, argBuffer, argSize, dataBuffer, dataSize)
+}
+
+func (ctx *RenameContext) ResolveImports() []sdk.Import {
+	return []sdk.Import{
+		sdk.NewImport("hoist", Wrapped_lensvm_exec_hoist),
+	}
+}
+
+//export lensvm_exec_rename
+func _lensvm_exec_rename(forward bool, argBufferStart int32, argSize int32, dataBufferStart int32, dataSize int32) types.Status {
+	return sdk.Exec("rename", forward, argBufferStart, argSize, dataBufferStart, dataSize)
+}
+
 type RenameContext struct {
 	sdk.DefaultModuleContext
 }
@@ -30,14 +49,15 @@ func (ctx *RenameContext) Name() string {
 }
 
 // Imports defines what other lenses we need to import
-func (ctx *RenameContext) Imports() []string {
-	return []string{
-		"hoist",
-		"convert",
-		"..."
-	}
-}
+// func (ctx *RenameContext) Imports() []string {
+// 	return []string{
+// 		"hoist",
+// 		"convert",
+// 	}
+// }
 
+// Run is the main lens function. It should be able to execute the lens both
+// forwards and backwards indicated by the first argument in the function.
 func (ctx *RenameContext) Run(forward bool, args sdk.Data, data sdk.Data) (sdk.Patch, error) {
 	var from, to string
 	var ok1, ok2 bool
@@ -50,23 +70,12 @@ func (ctx *RenameContext) Run(forward bool, args sdk.Data, data sdk.Data) (sdk.P
 	}
 
 	if !(ok1 && ok2) { // if either failed return ErrBadArgument
-		return nil, sdk.ErrBadArgument
+		return nil, types.ErrBadArgument
 	}
 
-	hoist, err := ctx.GetImport("hoist")
-	if err != nil {
-		return nil, err
-	}
-	res := sdk.NewPatch()
-	res.Set(to, data.MustGetString(from))
-
-	data = data.Merge(res)
-
-	return hoist.Run(forward, nil, data)
-}
-
-type RemoveContext struct {
-	sdk.DefaultModuleContext
+	return sdk.NewPatch(sdk.Map{
+		to: data.MustGetString(from),
+	})
 }
 
 // func newRenameContext(uint32) sdk.ModuleContext { return &RenameContext{} }

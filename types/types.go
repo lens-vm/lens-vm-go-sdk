@@ -23,7 +23,7 @@ const (
 	StatusErrInvalidContext               // code 1
 	StatusErrBadArgument                  // code 2
 	StatusNotFound                        // code 3
-	_                                     // code 4
+	StatusMalformedData                   // code 4
 	_                                     // code 5
 	_                                     // code 6
 	_                                     // code 7
@@ -57,8 +57,8 @@ var (
 	ErrInvalidContext = errors.New("Invalid context")
 	ErrBadArgument    = errors.New("Lens has bad argument")
 	ErrNotFound       = errors.New("Buffer data could not be found")
-
-	ErrUnknownStatus = errors.New("Unknown status")
+	ErrMalformedData  = errors.New("The buffered data is malformed (bad json)")
+	ErrUnknownStatus  = errors.New("Unknown status")
 )
 
 // Map between err and Status
@@ -66,6 +66,7 @@ var errToStatusMap = map[string]Status{
 	ErrInvalidContext.Error(): StatusErrInvalidContext,
 	ErrBadArgument.Error():    StatusErrBadArgument,
 	ErrNotFound.Error():       StatusNotFound,
+	ErrMalformedData.Error():  StatusMalformedData,
 }
 
 // Map between status and error
@@ -74,6 +75,7 @@ var statusToErrorMap = map[int32]error{
 	int32(StatusErrInvalidContext): ErrInvalidContext,
 	int32(StatusErrBadArgument):    ErrBadArgument,
 	int32(StatusNotFound):          ErrNotFound,
+	int32(StatusMalformedData):     ErrMalformedData,
 }
 
 // func newErr(s string) err {

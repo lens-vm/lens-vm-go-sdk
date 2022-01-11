@@ -1,5 +1,7 @@
 package hostcall
 
+// +build !lenstest
+
 import (
 	"github.com/lens-vm/lens-vm-go-sdk/types"
 )
